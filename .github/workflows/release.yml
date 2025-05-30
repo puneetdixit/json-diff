@@ -49,36 +49,36 @@ jobs:
         shell: pwsh
         run: |
           @"
-[Setup]
-AppName=json-diff
-AppVersion=1.0.0
-DefaultDirName={pf}\json-diff
-DefaultGroupName=json-diff
-AllowNoIcons=yes
-OutputDir=.
-OutputBaseFilename=json-diff-installer
-Compression=lzma
-SolidCompression=yes
+          [Setup]
+          AppName=json-diff
+          AppVersion=1.0.0
+          DefaultDirName={pf}\json-diff
+          DefaultGroupName=json-diff
+          AllowNoIcons=yes
+          OutputDir=.
+          OutputBaseFilename=json-diff-installer
+          Compression=lzma
+          SolidCompression=yes
 
-[Files]
-Source: "json-diff-windows-amd64.exe"; DestDir: "{app}"; Flags: ignoreversion
+          [Files]
+          Source: "json-diff-windows-amd64.exe"; DestDir: "{app}"; Flags: ignoreversion
 
-[Icons]
-Name: "{group}\json-diff"; Filename: "{app}\json-diff-windows-amd64.exe"
-Name: "{group}\Uninstall json-diff"; Filename: "{uninstallexe}"
+          [Icons]
+          Name: "{group}\json-diff"; Filename: "{app}\json-diff-windows-amd64.exe"
+          Name: "{group}\Uninstall json-diff"; Filename: "{uninstallexe}"
 
-[Run]
-Filename: "{app}\json-diff-windows-amd64.exe"; Description: "Run json-diff"; Flags: nowait postinstall skipifsilent
+          [Run]
+          Filename: "{app}\json-diff-windows-amd64.exe"; Description: "Run json-diff"; Flags: nowait postinstall skipifsilent
 
-[Registry]
-Root: HKLM; Subkey: "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Flags: preservestringtype
-"@ | Out-File -Encoding ASCII json-diff.iss
+          [Registry]
+          Root: HKLM; Subkey: "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Flags: preservestringtype
+          "@ | Out-File -Encoding ASCII json-diff.iss
 
-      - name: Generate installer
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" json-diff.iss
+                - name: Generate installer
+                  if: matrix.os == 'windows-latest'
+                  shell: pwsh
+                  run: |
+                    & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" json-diff.iss
 
   upload:
     needs: build
