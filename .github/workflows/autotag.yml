@@ -33,9 +33,10 @@ jobs:
       - name: Create new tag and push
         env:
           TAG: ${{ steps.next_tag.outputs.new_tag }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PAT: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git tag "$TAG"
+          git remote set-url origin https://x-access-token:${PAT}@github.com/${{ github.repository }}
           git push origin "$TAG"
