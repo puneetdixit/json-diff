@@ -1,0 +1,10 @@
+{
+  "user": {
+    "name": "Alice",
+    "address": {
+      "city": "Delhi",
+      "pincode": 110011
+    },
+    "phones": ["123", "456"]
+  }
+}

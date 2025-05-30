@@ -1,0 +1,11 @@
+{
+  "user": {
+    "name": "Alice B",
+    "address": {
+      "city": "Mumbai",
+      "pincode": 400001
+    },
+    "phones": ["123", "999"],
+    "email": "alice@example.com"
+  }
+}

@@ -29,6 +29,47 @@ jobs:
           GOOS=darwin GOARCH=amd64 go build -o json-diff-darwin-amd64
           GOOS=darwin GOARCH=arm64 go build -o json-diff-darwin-arm64
 
+      - name: Install Inno Setup
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wine unzip wget
+          wget https://jrsoftware.org/download.php/is.exe -O is.exe
+          wine is.exe /VERYSILENT /DIR=C:\\inno
+
+      - name: Create Inno Setup script
+        run: |
+          cat << 'EOF' > json-diff.iss
+          [Setup]
+          AppName=json-diff
+          AppVersion=1.0.0
+          DefaultDirName={pf}\json-diff
+          DefaultGroupName=json-diff
+          AllowNoIcons=yes
+          OutputDir=.
+          OutputBaseFilename=json-diff-installer
+          Compression=lzma
+          SolidCompression=yes
+
+          [Files]
+          Source: "json-diff-windows-amd64.exe"; DestDir: "{app}"; Flags: ignoreversion
+
+          [Icons]
+          Name: "{group}\json-diff"; Filename: "{app}\json-diff-windows-amd64.exe"
+          Name: "{group}\Uninstall json-diff"; Filename: "{uninstallexe}"
+
+          [Run]
+          Filename: "{app}\json-diff-windows-amd64.exe"; Description: "Run json-diff"; Flags: nowait postinstall skipifsilent
+
+          [Registry]
+          Root: HKLM; Subkey: "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"; \
+              ValueType: expandsz; ValueName: "Path"; \
+              ValueData: "{olddata};{app}"; Flags: preservestringtype
+          EOF
+
+      - name: Generate installer
+        run: |
+          wine "C:\\inno\\ISCC.exe" json-diff.iss
+
       - name: Upload Release Assets
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
@@ -38,5 +79,6 @@ jobs:
             json-diff-windows-amd64.exe
             json-diff-darwin-amd64
             json-diff-darwin-arm64
+            json-diff-installer.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
