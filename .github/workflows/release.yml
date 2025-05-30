@@ -9,7 +9,10 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v3
@@ -24,19 +27,16 @@ jobs:
 
       - name: Build binaries
         run: |
-          GOOS=linux GOARCH=amd64 go build -o json-diff-linux-amd64
-          GOOS=windows GOARCH=amd64 go build -o json-diff-windows-amd64.exe
-          GOOS=darwin GOARCH=amd64 go build -o json-diff-darwin-amd64
-          GOOS=darwin GOARCH=arm64 go build -o json-diff-darwin-arm64
-
-      - name: Install Inno Setup
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wine unzip wget
-          wget https://jrsoftware.org/download.php/is.exe -O is.exe
-          wine is.exe /VERYSILENT /DIR=C:\\inno
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            GOOS=linux GOARCH=amd64 go build -o json-diff-linux-amd64
+            GOOS=darwin GOARCH=amd64 go build -o json-diff-darwin-amd64
+            GOOS=darwin GOARCH=arm64 go build -o json-diff-darwin-arm64
+          elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            GOOS=windows GOARCH=amd64 go build -o json-diff-windows-amd64.exe
+          fi
 
       - name: Create Inno Setup script
+        if: matrix.os == 'windows-latest'
         run: |
           cat << 'EOF' > json-diff.iss
           [Setup]
@@ -66,12 +66,18 @@ jobs:
               ValueData: "{olddata};{app}"; Flags: preservestringtype
           EOF
 
-      - name: Generate installer
+      - name: Install Inno Setup
+        if: matrix.os == 'windows-latest'
         run: |
-          wine "C:\\inno\\ISCC.exe" json-diff.iss
+          choco install innosetup -y
+
+      - name: Generate installer
+        if: matrix.os == 'windows-latest'
+        run: |
+          "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe" json-diff.iss
 
       - name: Upload Release Assets
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') && matrix.os == 'ubuntu-latest'
         uses: softprops/action-gh-release@v1
         with:
           files: |
