@@ -170,7 +170,7 @@ func main() {
 	}
 
 	rootCmd.Flags().StringVarP(&jsonOutFile, "json-out", "j", "", "Write diff output to JSON file")
-	rootCmd.Flags().BoolVarP(&silent, "silent", "s", false, "Suppress output for unchanged fields")
+	rootCmd.Flags().BoolVarP(&silent, "silent", "s", false, "Suppress output for unchanged  fields")
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println("❌ Error:", err)
