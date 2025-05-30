@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.18
+
+      - name: Build binaries
+        run: |
+          GOOS=linux GOARCH=amd64 go build -o json-diff-linux-amd64
+          GOOS=windows GOARCH=amd64 go build -o json-diff-windows-amd64.exe
+          GOOS=darwin GOARCH=amd64 go build -o json-diff-darwin-amd64
+          GOOS=darwin GOARCH=arm64 go build -o json-diff-darwin-arm64
+
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            json-diff-linux-amd64
+            json-diff-windows-amd64.exe
+            json-diff-darwin-amd64
+            json-diff-darwin-arm64
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
