@@ -85,6 +85,18 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     steps:
+      - name: Download Linux/macOS artifacts
+        if: needs.build.strategy.matrix.os == 'ubuntu-latest'
+        uses: actions/download-artifact@v3
+        with:
+          name: json-diff-binaries-ubuntu-latest
+
+      - name: Download Windows artifacts
+        if: needs.build.strategy.matrix.os == 'windows-latest'
+        uses: actions/download-artifact@v3
+        with:
+          name: json-diff-binaries-windows-latest
+
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
         with:
